@@ -1,4 +1,58 @@
 Answer to Problem 3.63, CS:APP3e pp.314-315
 -------------------------------------------
 
+Here, we see 6 distinct switch statements. Looking at the provided
+disassembled code, we can see each of these distict statements and
+their effect on inputs.
 
+The first switch statement can be seen on line 6, where we get
+0 + x * 8 = 8x, and store this in %rax, then return it.
+
+The next switch statement comes on line 17, where we get 75 + x
+and return this value. We also know that this is the default, since
+the ja statement points to 4005c3.
+
+Thirdly, we see a repeat of the first switch statement, multiplying
+x by 8.
+
+In the fourth, we move our x value to %rax, then we arithmetically
+shift right by 3 bits and return.
+
+The fifth switch statement we move our x value to %rax, logically
+shift left by 4 bits, subtract x from this x << 4, move x << 4 - x
+to %rdi, multiply x << 4 - x by itself, then add 75 to this and
+return.
+
+The sixth and final switch statement comes on line 16. We begin by
+multiplying x by itself, then adding 75, and returning the result.
+
+Our C code will look as follows:
+
+int switch_prob (int x, int n) {
+    int num = x;
+
+    switch(n) {
+        case 60:
+
+        case 62:
+            result *= 8;
+            break;
+
+        case 63:
+            result = result >> 3;
+            break;
+
+        case 64:
+            result = (result << 4) - result;     
+            break;
+
+        case 65:
+            result *= result;
+            break;
+
+        default:
+            result += 75;
+    }
+    
+    return result;
+}

@@ -53,12 +53,12 @@ f2:
 /*====================================================================
  * int f3(int x)
  *
- * This function returns 1 if x is negative, and 0 if x is 0 or positive.
- * It does this by right shifting (arithmetic) by 31 bits, as above to get
- * the sign value, then it sets a value for the sign by comparing x against
- * this right shifted x. It will then set the %eax value to 1 if the sign
- * flag indicates negativity, or leave it as 0 if it is 0 or positive.
- * Then, it returns this value.
+ * This function returns -1 if x is negative, 0 if x is 0, and 1 if x is
+ * 0 or positive. It does this by right shifting (arithmetic) by 31 bits,
+ * as above to get * the sign value, then it sets a value for the sign by
+ * comparing x against this right shifted x. It will then set the %eax
+ * value to 1 if the sign flag indicates negativity, or leave it as 0 if
+ * it is 0 or positive. Then, it returns this value.
  */
 .globl f3
 f3:
@@ -66,8 +66,9 @@ f3:
         movl    %edx, %eax  # copy x to %eax
         sarl    $31, %eax   # arithmetic shift right 31 times
                             # (to get sign) store in %edx
-        testl   %edx, %edx  # get sign, store it in a flag
+        testl   %edx, %edx  # bitwise AND, get flags
         movl    $1, %edx    # set %edx to 1
-        cmovg   %edx, %eax  # set %eax to value of sign flag
-        ret                 # return %eax
+        cmovg   %edx, %eax  # evaluates NOT sign flag AND NOT Zero flag
+                            # 
+        ret                 # return the evaluation
 
