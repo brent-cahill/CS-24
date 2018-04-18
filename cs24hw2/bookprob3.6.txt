@@ -1,0 +1,15 @@
+Answers to Practice Problem 3.6, CS:APP3e pp.192-193
+----------------------------------------------------
+
+%rax holds x
+%rcx holds y
+
+
+Instruction                     Result (stored in %rdx)
+-------------------------------------------------------
+leaq 6(%rax), %rdx              6 + x
+leaq (%rax,%rcx), %rdx          x + y
+leaq (%rax,%rcx,4), %rdx        x + y * 4
+leaq 7(%rax,%rzx,8), %rdx       7 + x + x * 8 = 7 + 9x
+leaq 0xA(,%rcx,4), %rdx         10 + y * 4
+leaq 9(%rax,%rcx,2), %rdx       9 + x + y * 2

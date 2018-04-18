@@ -1,0 +1,9 @@
+What does the assembly code do?
+-------------------------------
+
+
+movq    15(%rbp), %rax      // We move variable x (located at M[8 + %rbp] into %rax
+imulq   $3, %rax            // 3 * x is calculated and stored in %rax
+addq    $12, %rax           // (3 * x) + 12 is calculated and stored in %rax
+imulq   16(%rbp), %rax      // ((3 * x) + 12) * x is calculated and stored in %rax
+subq    $17, %rax           // (((3 * x^2) + 12x) - 17 is calculated and stored in %rax

@@ -1,0 +1,17 @@
+Part A:
+-------
+
+The results are different because there is a certain precision to even floats. They can only hold so many bits, therefore, large running sums will lose at least some precision over many sums, as we will disregard the least significant bits in order to keep the most significant bits.
+
+Both conceptually and practically, the method that adds the values in order of increasing magnitude is the most accurate. This is because adding together many relatively small values reduces the amount of floating point loss, as there wont be any loss until we reach a point at which the numbers become large enough, at which point we will only lose the minimum amount.
+
+If we recieved inputs that were all around the same (very large) order of magnitude with high precision, then even adding in order of increasing magnitude would end up with large errors.
+
+Part B:
+-------
+
+In this program, we implement the pairwise summation algorithm. Here, we continually break up the array into 2 arrays using recursion, and add the sum of the two arrays together. This means that we create larger and larger sums, which in a way aligns with our reasoning for why the method that adds in order of increasing magnitude is more accurate. We drastically reduce the amount of roundoff error using a divide and conquer method.
+
+More conceptually, when we have an array of size n, we know that there must always be n-1 additions to compute the sum in this case. The roundoff errors will therefore grow at log(n) because we are summing the numbers in subsets, so the first round of subset sums will be less likely to result in roundoff errors than the second, and the second will be less likely than the third, and so on.
+
+

@@ -1,0 +1,9 @@
+0BB6  #  SUB R6<-R6-R6 -- quotient - quotient
+0217  #  ADD R7<-R0+R2 -- remainder
+0BCF  #  SUB R7<-R7-R1 -- remainder = remainder - divisor
+23DC  #  AND R4<-R7&R3 -- bit mask to remainder, in temp
+2907  #  BNZ R4 7      -- if temp != 0, in which case remainder != 0, break
+17AE  #  INCR R6<-R6+1 -- increment quotient
+2942  #  BNZ R5 2      -- here, branch LOOP_TOP
+03CF  #  ADD R7<-R7+R1 -- IF_TOP 7, remainder = remainder + divisor
+3C00  #  DONE          -- exit with results R6 and R7

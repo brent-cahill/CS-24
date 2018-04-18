@@ -1,0 +1,8 @@
+0009    # R0 -- dividend
+0010    # R1 -- divisor
+0000    # R2 -- constant
+8000    # R3 -- mask
+FFFF    # R4 -- temp var
+0001    # R5 -- constant
+FFFF    # R6 -- quotient (0)
+FFFF    # R7 -- remainder (9)

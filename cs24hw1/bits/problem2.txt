@@ -1,0 +1,4 @@
+Expression:  n = n & (n - 1)
+----------------------------
+
+This expression sets n equal to the result of the bitwise and operator between n and (n - 1).

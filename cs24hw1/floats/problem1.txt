@@ -1,0 +1,13 @@
+CS:APP3e Practice Problem 2.46, pp.111-112:
+-------------------------------------------
+
+
+A. 0.1 = 0.00011 with the last 4 digits repeating.
+
+Thus, 0.1 - 0.00011001100110011001100 = 0.000000000000000000000001100 with the last 4 digits repeating.
+
+B. We know that converting 0.000000000000000000000001100, as above, is the same as saying that 2^[-20] in base 10, multiplied by our representation of 0.1 in binary, therefore, we have 2^[20] * 0.1 = 9.54 x 10^[-8]
+
+C. Every tenth of a second is off by 9.54 x 10^[-8] seconds, therefore, over 100 hours (100 hours * 60 minutes/hour * 60 seconds/minute * 10 tenths of a second/second), the total error would be 9.54 x 10^[-8] * 3,600,000 = 0.3433227539 seconds over 100 hours.
+
+D. 2000 m/s * 0.3433227539 s = 686.6 meters off.

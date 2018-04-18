@@ -1,0 +1,12 @@
+Stack Contents of fact(3)
+-------------------------
+
+Address     Value       Description
+--------    --------    ------------------------------------
+0x1008                  Caller Return Address
+0x1000      0x0003      Given argument value
+0xfff8      0x2020      Caller Return Address (fact_resume)
+0xfff0      0x0002      Given argument value (recursion depth 1)
+0xffe8      0x2020      Caller Return Address (fact_resume)
+0xffe0      0x0001      Given argument value (recursion depth 2)
+0xffd8      0x2020      Caller Return Address (fact_resume)
