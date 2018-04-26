@@ -1,0 +1,21 @@
+Answers for the "Arrays, Pointer Arithmetic, and Structs" section of CS24 HW3:
+
+
+1. The value of each byte of the 16-byte region pointed to by p is:
+
+00 00 00 EF BE AD DE 00 00 00 00 00 BE BA FE CA
+01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
+
+2.      Offset      Member Size
+id      4 bytes     0 bytes
+code    5 bytes     4 bytes
+next    8 bytes     16 bytes
+
+Total size in memory: 4 + 4 + 16 = 24 bytes
+Total bytes unused: 24 - 17 = 7 bytes
+
+3. If offset had a value of 103 bytes, then the last two lines of code would write the same byte.
+
+arr[4] = 24 * 4 = 096 bytes
+code[3] = 3 + 4 = 007 bytes
+Total           = 103 bytes

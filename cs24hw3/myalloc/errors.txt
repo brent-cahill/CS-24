@@ -1,0 +1,21 @@
+Explicit-Allocator Robustness:
+
+(a) Describe what your allocator does in each of the following error cases.
+
+What happens if a programmer calls myfree() on:
+
+1. An address that did not originate from myalloc()?
+
+2. An address that is contained within a memory block returned by myalloc()?
+
+3. An address that has already been freed?
+
+1. In this case there are two options. If the input address is preceeded by a 4 byte signed negative integer, then my allocator will attempt to make a new free block. Unfortunately, this will create what I would call a ghost block, one which the proceeding block does not know exists. Essentially, the block that this block is encased within will be corrupted. If the 4 bytes are a signed positive integer, then nothing really would happen, unless they were the same as another header which was signed negative, in which case, they would change that header to positive, which would be a big problem.
+
+2. In this case, if the header is negative, the memory block will be corrupted, specifically at the 4 bytes of the header. If it is positive, there is no error.
+
+3. Nothing happens, both the header and the block are left unaffected.
+
+(b) Describe how to implement an allocator that would be more robust to the kinds of abuses suggested in the previous question.  By “more robust,” we mean that the program should flag the invalid use and then terminate, identifying the offending myfree() call.
+
+The obvious answer here is to simply ensure that every input is contained within the memory pool and is possible to free. This could be done using if statements with fprintfs or assert statements. This way, myfree() could never be called on an address that did not originate from myalloc(), and we couild ensure that it could not be called on an address that is contained *within* a memory block returned by myalloc(). Lastly, we could check every input to myfree() to ensure that the address has not already been freed, although this isn't much of a problem to begin with, besides simply wasting a very small amount of time.

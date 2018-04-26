@@ -44,11 +44,9 @@ int switch_prob (int x, int n) {
 
         case 64:
             result = (result << 4) - result;     
-            break;
 
         case 65:
             result *= result;
-            break;
 
         default:
             result += 75;

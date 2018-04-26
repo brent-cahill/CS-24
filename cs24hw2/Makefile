@@ -1,11 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Werror
 
-all: factmain 
-
-# perhaps use this as you develop further parts 
-# of the assignment
-#all: factmain gcdmain 
+all: factmain gcdmain 
 
 factmain.o:	fact.h factmain.c
 fact.o:	fact.s

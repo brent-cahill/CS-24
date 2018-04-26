@@ -1,0 +1,47 @@
+Bugs in rl_decode() function:
+-----------------------------
+
+First Bug: Line 40 in original code
+We are trying to figure out how much space is required to decode the data. The first problem is that we are not accounting for the possibility of overflow in %bl. To fix this, we check to see if there is overflow or carry. If there is not, then we jump forward in the code. If so, then we manually add 256 to %ebx.
+
+Second Bug: Line 41 in original code
+We are only adding 1 to %rcx, which is a problem because each count is preceeded by the character for which the count is for. This means that we actually need to add 2 to %rcx.
+
+Third Bug: Line 48 and 55 in original code
+We need to push %rsi and %rdx onto the stack before we do anything else in the function, especially before we call malloc, since both can be overwritten by the call. We will then simply pop them after the call to malloc and popping %rdi. We need these two, since they contain the address of the start of the source array, and the pointer where the length of the decoded result should be stored, respectively.
+
+Fourth Bug: Line 74 in original code
+We need to change the value of %r10, so that we do not add the character to the same location every time. It is easy to simply increment here by %r10 in the loop after the mov call.
+
+After fixing all of these bugs, and running the test_rldec program, we get the following output:
+
+Test case 0:  	PASS
+
+Test case 1:  	PASS
+
+Test case 2:  	PASS
+
+Test case 3:  	PASS
+
+Test case 4:  	PASS
+
+Test case 5:  	PASS
+
+After running rlenc bw_bird.bmp bw_bird.rle, we get the following output:
+
+Encoding file "bw_bird.bmp" into file "bw_bird.rle".
+All done!
+
+After running rldec bw_bird.rle bw_bird_out.bmp, we get the following output:
+
+Decoding file "bw_bird.rle" into file "bw_bird_out.bmp".
+All done!
+
+After running diff bw_bird.bmp bw_bird_out.bmp, we get no output.
+
+
+
+
+
+
+
