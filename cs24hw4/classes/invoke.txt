@@ -1,0 +1,4 @@
+movq (%r8), %rdi	# %rdi now holds the address of the subclass
+movq (%rdi), %r10	# %r10 now holds the address of the getVolume function
+call (%r10)			# call the function from above with the address we provided
+					# and the subclass we defined above as the argument.

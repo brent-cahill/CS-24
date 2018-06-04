@@ -1,0 +1,70 @@
+Explicit Allocator Scenario:  Allocation Fails under Best-Fit but not First-Fit
+===============================================================================
+
+An example of a situation in which an allocation would fail under best fit but
+not first fit is similar to my answer for Problem 4a.
+
+Consider a 16KB heap with the same initial allocations:
+
+1. A = allocate(8KB);
+2. B = allocate(2KB);
+3. C = allocate(6KB);
+
+This would give us the following initial heap:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|A                                      |B        |C                            |
+|8KB                                    |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Then consider the following free instructions:
+
+4. free(A);
+5. free(C);
+
+This would give us the following heap:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|_                                      |B        |_                            |
+|8KB                                    |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+
+Now consider the following three allocations:
+
+6. D = allocate(4KB);
+7. E = allocate(4KB);
+8. F = allocate(6KB);
+
+After 6, we have the following heap in First-Fit:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|D                  |_                  |B        |_                            |
+|4KB                |4KB                |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+After 7 in First-Fit:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|D                  |E                  |B        |_                            |
+|4KB                |4KB                |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+After 8 in First-Fit:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|D                  |E                  |B        |F                            |
+|4KB                |4KB                |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Meaning that First-fit has succeeded.
+
+However, in Best-Fit, we have after 6:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|_                                      |B        |D                  |_        |
+|8KB                                    |2KB      |4KB                |2KB      | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+After 7 in Best-Fit:
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|E                  |_                  |B        |D                  |_        |
+|4KB                |4KB                |2KB      |4KB                |2KB      | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Leaving us no room for F. In this situaion, Best-Fit has failed, while First-
+Fit has not, as desired.
+

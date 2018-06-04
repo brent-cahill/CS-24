@@ -1,0 +1,8 @@
+f       # A = 15
+3       # B = 3
+ffff    # This register is temporarily used.
+ffff
+ffff
+ffff
+ffff
+ffff    # P should be 45 (0x2D) at end of execution.

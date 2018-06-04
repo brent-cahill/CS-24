@@ -1,0 +1,15 @@
+555
+gc()
+256
+gc()
+gc()
+gc()
+124
+gc()
+gc()
+a = 15
+a
+del a
+del a
+gc()
+gc()

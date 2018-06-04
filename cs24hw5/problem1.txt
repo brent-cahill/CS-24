@@ -1,0 +1,61 @@
+Problem 1:
+
+(a) Your application is completing only 750M instructions per second.
+Assuming this is primarily due to data memory access effects, what miss
+rate are you seeing?
+
+We are given that our performance is 7.5E+8 instructions per second.
+
+We are also given that:
+Our processor speed is 3E10+9 Hz
+Our hit latency is 1 cycle per instruction
+Our miss latency is 100 cycles per instruction
+
+
+We also know that our hit rate is 1 - our miss rate, the rate we are attempting
+to find.
+
+Now we say that our instructions per second (performance) is equal to cycles
+per second times instructions per cycle.
+
+Then, we can say that our average number of cycles per instruction is equal to:
+100 * x cycles / instruction + (1 - x) cycles / instruction
+
+If we say that our miss rate = x.
+
+Now we simplify to our average cycles per instruction, given our x miss rate:
+(99 * x) + 1 cycles / instruction.
+
+Now we multiply the inverse by our processor speed, and set that equal to our
+performance:
+(1 / (99 * x + 1)) * (3E+9) = 7.5E+8
+
+Solving for x gives us:
+x = 0.03030...
+or approximately 3%.
+
+(b) If you want to double the performance (instructions per second) of your
+application, by how  much will you need to reduce the cache miss rate?
+Again, show your work.
+
+In order to double the performance (instructions per second), we must double
+instructions per cycle.
+
+We know from (a) that the inverse of instructions per cycle is:
+99x + 1 cycles per instruction. So, in order to double instructions per
+cycle, we can halve cycles per instruction:
+
+99x' + 1 = (99x + 1) / 2
+198x' + 2 = (99x + 1)
+198x' = 99(0.03030) - 1
+198x' = 3 - 1
+198x' = 2
+x' = 0.01010...
+or approximately 1%.
+
+Therefore, the miss rate would need to be reduced by a factor of 3.
+
+
+
+
+

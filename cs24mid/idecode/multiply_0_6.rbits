@@ -1,0 +1,8 @@
+0       # A = 0
+6       # B = 6
+ffff    # This register is temporarily used.
+ffff
+ffff
+ffff
+ffff
+ffff    # P should be 0 at end of execution.

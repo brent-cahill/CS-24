@@ -1,0 +1,199 @@
+Buddy Allocator
+===============
+
+Put your answers for the buddy-allocator problem in this file.  You must keep
+lines to 80 characters or less, with the exception of the block pictures, which
+go slightly beyond the 80-character limit.
+
+For part d, you can describe the heap state as follows:
+
+Initial:
+
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |                                                                               |
+  |                                                                               |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Step i:  [alloc/free stuff]
+
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |                                                                               |
+  |                                                                               |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Indicate boundaries between blocks with "|" characters.  Since the
+problem specifies a 16KiB heap, each "+----+" section represents 1KiB.
+
+At the start of each allocated or free block in the heap, put the
+following values:
+
+ * On the first line, put "O? _" where ? is the order of the block, and
+   "_" indicates a free block, or A/B/C/D/E indicates the name of the
+   allocated block.
+
+ * On the second line, put the size of the block:  for a free block, you
+   can put "??KB", where this is the size of the free block.  For a used
+   block, put "????", indicating the number of bytes in the used block.
+
+For example, after a 6000 byte allocation, you might have this:
+
+Step 1:  A = alloc(6000);
+
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |O8 A                                   |O8 _                                   |
+  |6000                                   |8KB                                    |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+==== PUT YOUR ANSWERS BELOW THIS LINE (which is 80 chars long) =================
+
+a)  Maximum size order of 2GiB heap
+
+    The maximum size order for a 2GiB heap is 26. We know that the free list
+    array will have the number of free blocks of every order. Initially,
+    however, there is only one free block (of order 26). The array has a size
+    of 27.
+
+b)  Implementation of get_order_of_size()
+
+    
+
+c)  Detecting failed allocation requests
+
+    The allocator should check to ensure that a couple of situations are not
+    the case: first, the allocator should ensure that the allocation request
+    size is not greater than the size of the largest free block.
+
+
+d)  Sequence of allocations and deallocations for 16KiB heap
+
+    Initial:
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |09 _                                                                           |
+    |16KB                                                                           |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    1.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 A     |06 _     |07 _               |08 _                                   |
+    |1400     |2KB      |4KB                |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    2.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 A     |06 _     |07 _               |08 B                                   |
+    |1400     |2KB      |4KB                |5500                                   |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    3.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 A     |05 C|05 _|07 _               |08 B                                   |
+    |1400     |800 |1KB |4KB                |5500                                   |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    4.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 A     |05 C|05 _|07 D               |08 B                                   |
+    |1400     |800 |1KB |3200               |5500                                   |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    5.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 _     |05 C|05 _|07 D               |08 B                                   |
+    |2KB      |800 |1KB |3200               |5500                                   |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    6.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |05 E|05 _|05 C|05 _|07 D               |08 B                                   |
+    |700 |1KB |800 |1KB |3200               |5500                                   |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    7.
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |05 E|05 _|05 C|05 _|07 D               |08 _                                   |
+    |700 |1KB |800 |1KB |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    8a (free).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |05 E|05 _|05 _|05 _|07 D               |08 _                                   |
+    |700 |1KB |1KB |1KB |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    8b (coalesce).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |05 E|05 _|06 _     |07 D               |08 _                                   |
+    |700 |1KB |2KB      |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    9a (free).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |05 _|05 _|06 _     |07 D               |08 _                                   |
+    |1KB |1KB |2KB      |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    9b (coalesce 1).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |06 _     |06 _     |07 D               |08 _                                   |
+    |2KB      |2KB      |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    9c (coalesce 2).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |07 _               |07 D               |08 _                                   |
+    |4KB                |3200               |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    10a (free).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |07 _               |07 _               |08 _                                   |
+    |4KB                |4KB                |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    10b (coalesce 1).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |08 _                                   |08 _                                   |
+    |8KB                                    |8KB                                    |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    10c (coalesce 2).
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    |09 _                                                                           |
+    |16KB                                                                           |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+    *Note: I broke up every coalesce to make it easier to understand, but the
+    ending state for each number 1-10 is the last of its substates.
+
+    After completion of step 4, there is one free block of size 1KB (order 5:
+    1024 bytes) available to satisfy allocation requests, however, there are
+    4460 bytes that are unused, but not available to satisfy allocation
+    requests.
+
+
+e)  Limitation of buddy allocators
+
+    The biggest problem with buddy allocators is that if a memory allocation
+    request is made with a size that is only slightly larger than one
+    block order i, but significantly smaller than the order i + 1, then it
+    will require the use of an entire i + 1 order block, which wastes a lot of
+    the space that the i + 1 block could provide in the heap.
+
+
+f)  Placement strategy of buddy allocators
+
+    Buddy allocators are most similar to First-Fit, although this First-Fit
+    uses segregated fits, as mentioned in lecture. This means that the
+    allocator looks through the free list array and finds the smallest,
+    leftmost available one that can fit the allocation size.
+
+
+g)  Deferred coalescing
+
+    Deferred coalescing makes sense for times when we are freeing memory
+    in between allocations. This is because if we coalesce the blocks, only to
+    later break the blocks up again when we need to allocate a smaller block,
+    this is inefficient. This also runs the risk of having to coalesce multiple
+    times, rather than simply waiting until the very end to perform all
+    coalescing. It is easier to keep a block uncoalesced if there will be
+    another allocation of the same order.

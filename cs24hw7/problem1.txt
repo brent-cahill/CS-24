@@ -1,0 +1,13 @@
+Problem 1:
+
+The main problem that I see in the output is that the program is exclusively
+printing numbers from producer 0. This means that the program is not getting
+the numbers from the other producer, and cannot validate them either. This
+occurs because the next producer can only produce an output once the buffer is
+full, because the first producer won't stop until this occurs. The problem with
+this is that once this occurs, the buffer is full, so the next producer will
+not be able to add anything to the buffer. This means that cooperative thread
+execution is not fair here.
+It is also important to note that producer 0 will never yield unless the buffer
+is full, so even if the buffer isn't full, it will still have precedence over
+producer 1.

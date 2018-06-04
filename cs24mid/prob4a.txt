@@ -1,0 +1,56 @@
+Explicit Allocator Scenario:  Allocation Fails under First-Fit but not Best-Fit
+===============================================================================
+
+An example of a situation in which an allocation would fail under First-Fit but
+not Best-Fit is as follows:
+
+Consider a 16KB heap with the following initial allocations:
+
+1. A = allocate(8KB);
+2. B = allocate(2KB);
+3. C = allocate(6KB);
+
+This would give us the following initial heap:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|A                                      |B        |C                            |
+|8KB                                    |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Then consider the following free instructions:
+
+4. free(A);
+5. free(C);
+
+This would give us the following heap:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|_                                      |B        |_                            |
+|8KB                                    |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+
+Now consider the following two allocations:
+
+6. D = allocate(5KB);
+7. E = allocate(7KB);
+
+After 6, we have the following heap in First-Fit:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|D                       |_             |B        |C                            |
+|5KB                     |3KB           |2KB      |6KB                          | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Leaving us no room for E. First-Fit would fail here.
+
+However, if we are using Best-Fit, we would have, after 6:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|_                                      |B        |D                       |_   |
+|8KB                                    |2KB      |5KB                     |1KB | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Leaving us enough room for E in 7:
+
++----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+|E                                 |_   |B        |D                       |_   |
+|7KB                               |1KB |2KB      |5KB                     |1KB | +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+In this situation, First-Fit would fail, but Best-Fit would not.

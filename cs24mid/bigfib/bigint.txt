@@ -1,0 +1,49 @@
+------------------------------------------------------------------------------
+1)  Pseudocode for __add_bigint
+
+Assembly pseudocode:
+
+__add_bigint:
+    move 1 into return val (%rax)
+    test if size (%dl) = 0;
+    if %dl = 0, jump to one_ret
+    
+    clear carry flag (CF)
+
+    move %rdx into %r8  # Move the size variable so that we can decq
+    move %rdi into %r9  # Move a into %9
+    move %rsi into %r10 # Move b into %10
+    
+    # Begin while loop:
+    adc %r9, %r10
+    load next element of a
+    load next element of b
+    dec %r8
+    jump to beginning of while loop if ZF != 1 # Modified by dec
+
+    one_ret:
+        ret
+
+    zero_ret:
+        move 0 into return val (%rax)
+        ret
+
+
+
+------------------------------------------------------------------------------
+3)  Largest n for fib(n) using four 64-bit quadwords for bigint:
+
+The largest n for fib(n) using four 64-bit quadwords for bigint is 370.
+
+------------------------------------------------------------------------------
+4)  Number of 64-bit quadwords required for fib(2000), and value of fib(2000):
+
+The Number of 64-bit quadwords required for fib(2000) is 22, and fib(2000) =
+4,224,696,333,392,304,878,706,725,602,341,482,782,579,852,840,250,681,098,010,
+280,137,314,308,584,370,130,707,224,123,599,639,141,511,088,446,087,538,909,
+603,607,640,194,711,643,596,029,271,983,312,598,737,326,253,555,802,606,991,
+585,915,229,492,453,904,998,722,256,795,316,982,874,482,472,992,263,901,833,
+716,778,060,607,011,615,497,886,719,879,858,311,468,870,876,264,597,369,086,
+722,884,023,654,422,295,243,347,964,480,139,515,349,562,972,087,652,656,069,
+529,806,499,841,977,448,720,155,612,802,665,404,554,171,717,881,930,324,025,
+204,312,082,516,817,125.

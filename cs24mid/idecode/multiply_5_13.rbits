@@ -1,0 +1,8 @@
+5       # A = 5
+d       # B = 13 (0x0D)
+ffff    # This register is temporarily used.
+ffff
+ffff
+ffff
+ffff
+ffff    # P should be 65 (0x41) at end of execution.

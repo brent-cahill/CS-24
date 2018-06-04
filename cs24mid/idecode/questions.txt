@@ -1,0 +1,13 @@
+Instruction Decoding:  Questions
+================================
+
+1)  Offsets of MUL_LOOP, SKIP_ADD, MUL_DONE
+
+# Using pseudocode
+
+Offset of MUL_LOOP: 3.
+Offset of SKIP_ADD: 7.
+Offset of MUL_DONE: 10.
+
+2)  Assembly instructions and encoded bit-patterns
+
