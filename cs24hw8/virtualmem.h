@@ -12,7 +12,7 @@
 /* When debugging virtual memory, setting this to 1 will result in a lot of
  * details being output to standard error.
  */
-#define VERBOSE 1
+#define VERBOSE 0
 
 
 /* Type for representing a page number.  Since we have a limit of 4K

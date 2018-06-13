@@ -1,0 +1,89 @@
+Buddhabrot Renderer
+===================
+
+Givens:
+2048x2048 pixel image with max iteration = 2000
+One thread
+x86-64 processor, 32KB L1 cache, 256KB L2 cache, and 8MB L3 cache.
+Lines = 64 bytes. HW caches follow a write-back/write-allocate strategy.
+
+1.  Size of `points` array
+
+We see: complex_t *points = malloc(sizeof(complex_t) * max_iters), which gives
+us 2 floats: (4 + 4) * 2000 = 16,000 bytes.
+This will fit in any of the caches, since 16,000 bytes is less than any of the
+cache sizes.
+
+2.  Memory reference pattern of `points` array
+
+The compute_bbrot() function calls the compute_bbrot_point() function. This
+function interates through the elements from the 0th to the z_nth element.
+This is called a stride-1 reference pattern, as we learned in lecture 14. In
+this function, there is a call to record_point_list(), which also iterates
+through in a stride-1 reference pattern. We learned in lecture that this
+therefore gives us good spatial locality, because of the small stride pattern.
+Similarly, we have good temporal locality, as we look at the same data item
+multiple times.
+
+3.  Hardware caches and `points` array
+
+Yes, the program will benefit from the hardware caches. This is because we know
+that the L1 cache is very large, certainly large enough to hold the entire
+array, plus any other relevent created data. In addition, as we mentioned in 2,
+the program has good spacial/temporal locality. All of this means that accesses
+will occur at approximately L1 speeds.
+
+4.  Size of `array` image-data
+
+We see: return malloc(bbrot_size * bbrot_size * sizeof(uint32_t)); This gives
+us: 2048 * 2048 * 4 = 16,777,216 bytes, or about 16.8MB, which is larger than
+any of the caches.
+
+5.  Memory reference pattern of `array` image-data
+
+The record_point_list() function calls the record_point() function, which
+iterates over the elements of points. Unfortunately, the pixels that points
+refers to are not in order, and therefore, we do not have a definable stride
+reference pattern. This means that we have poor spatial locality. In addition,
+we have poor temporal locality, since we only access a given data point at most
+once.
+
+6.  Hardware caches and `array` image-data
+
+The program likely will not benefit from the hardware caches. This is because
+the array image-data cannot fit into the L1, L2, or L3 caches. In addition, the
+program has poor spatial/temporal locality. For these reasons, it is likely that
+the program will run at L4 Main Memory (DRAM) speeds, or slightly faster.
+
+7.  Multithreading and hardware caches
+
+The most noticable performance issue that is likely to arise with mutiple
+threads is that of cache incoherence, as stated in lecture 15. I.e., if
+one cache is trying to read to a memory block while another is trying to
+write to that same memory block, we can create an asynchronization in the
+memory block. This can be solved, but it is a problem, and would get worse as
+the number of cores increased, since there would be more opportunities for two
+(or more) cores to access the same memory block.
+
+Interestingly, these problems would actually lessen as image size increased,
+since there would be many more blocks to access, given the same number of
+cores.
+
+8.  Improvements to Buddhabrot Renderer
+
+Single-threaded usage: Theoretically, one could initially sort the array
+image data, in order to improve spatial locality. This would shorten the
+distance between data access, and make for a more consistent and tight
+reference pattern. Unfortunately, it is unclear if the time required to do this
+initial sort is worth it or not. Otherwise, this also improves temporal
+locality, since we are now able to access data elements multiple times.
+
+Multi-threaded usage: The best way to utilize mutiple threads in this context
+is to break down the array image data into equal parts, and have each core
+manage a given block of the array. In this way, we guarantee that no block will
+ever be accessed by mutiple cores at once. The problem with this method is that
+one block of the image array could be done before another, and then the core
+would be idle when we could theoretically use it. The only other drawback would
+be the time to split and then recombine the array, which would not contribute
+to the overall time complexity of the problem.
+

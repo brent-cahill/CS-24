@@ -446,31 +446,48 @@ void map_page(page_t page, unsigned initial_perm) {
         abort();
     }
 
-    /* ==== TODO:  IMPLEMENT =================================================
-     *
-     * This function must use mmap() to update the process' virtual address
-     * space to make the page's address range valid.  After this is done, the
-     * function must load the page's contents from the swap file.
-     *
-     * The mmap() call should use MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS for
-     * the flags.  The return-address should be checked for errors (as
-     * described in the assignment), and it should also be checked against the
-     * input address (they should be the same, or an error should be
-     * reported).
-     *
-     * Once the page is mapped, the function can seek to the start of the
-     * page's corresponding slot in the swap-file using lseek(), and the
-     * data can be loaded using the read() function.  Make sure to verify the
-     * return-values of these functions, and report errors on failure, as
-     * described in the assignment.  This will aid in debugging, and it will
-     * also avoid unnecessary point-deductions.
-     *
-     * Finally, the page's Page Table Entry should initialized properly, and
-     * the page's permissions should be set appropriately.  (Keep in mind that
-     * your read() call will write to the page, so you must tell mmap() to
-     * allow reading and writing or else loading the page's contents will
-     * fail.)
+    /* Ensure that the page's address range is valid. Use mmap() to update the
+     * virtual space.
      */
+
+    void *ans = mmap(page_to_addr(page), PAGE_SIZE, PROT_READ | PROT_WRITE,
+        MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+    /* Check to ensure that is no error */
+    if (ans == MAP_FAILED) {
+        perror("mmap");
+        abort();
+    }
+
+    if (ans != page_to_addr(page)) {
+        fprintf(stderr, "%s\n", "Error: Address from mmap() does not match "
+            "input address");
+        abort();
+    }
+
+    /* Check for errors in swap-file */
+    if (lseek(fd_swapfile, page * PAGE_SIZE, SEEK_SET) == -1) {
+        perror("lseek");
+        abort();
+    }
+
+    /* Now, we can load the data from swapfile, still error checking */
+    int input_bytes = read(fd_swapfile, page_to_addr(page), PAGE_SIZE);
+    if (input_bytes == -1) {
+        perror("read");
+        abort();
+    }
+    
+    if (input_bytes != PAGE_SIZE) {
+        fprintf(stderr, "%s\n", "Error: unexpected number of input bytes.");
+        abort();
+    }
+
+    /* Initialize page table, and set permissions */
+    set_page_resident(page);
+    set_page_permission(page, initial_perm);
+
+
 
     assert(is_page_resident(page));  /* Now it should be mapped! */
     num_loads++;
@@ -494,30 +511,32 @@ void unmap_page(page_t page) {
     assert(num_resident > 0);
     assert(is_page_resident(page));
 
-    /* ==== TODO:  IMPLEMENT =================================================
-     *
-     * This function must use munmap() to remove the page's address range from
-     * the process' virtual address space.
-     *
-     * Before this can be done, however, the function must check if the page
-     * is dirty, and *only* if it is, save the page back to its corresponding
-     * slot in the swap file.  (If the function always saves pages back to
-     * disk, a significant deduction will be applied.)
-     *
-     * If the page is dirty, the function can seek to the start of the page's
-     * corresponding slot in the swap-file using lseek(), and then use the
-     * write() function to save the data into the swap file.  Make sure to
-     * verify the return-values of these functions, and report errors on
-     * failure, as described in the assignment.  This will aid in debugging,
-     * and it will also avoid unnecessary point-deductions.
-     *
-     * Note that when you are writing the page back to disk, you will be
-     * performing a read on the page.  Therefore, you may want to set the
-     * page's permissions to allow reading, so that the write() is able to
-     * complete successfully.
-     *
-     * Finally, the page's Page Table Entry should be cleared.
-     */
+    /* Check to see if the page is dirty. If so, return the page to its slot */
+    if (is_page_dirty(page)) {
+        set_page_permission(page, PAGEPERM_READ);
+
+        /* Now check errors in the page's slot in the swap file */
+        if (lseek(fd_swapfile, page * PAGE_SIZE, SEEK_SET) == -1) {
+            perror("lseek");
+            abort();
+        }
+
+        /* Now save to the swap file, still checking for errors */
+        int output_bytes = write(fd_swapfile, page_to_addr(page), PAGE_SIZE);
+        if (output_bytes == -1) {
+            perror("write");
+            abort();
+        }
+    }
+
+    /* Unmap the page, checking for errors */
+    if (munmap(page_to_addr(page), PAGE_SIZE) == -1) {
+        perror("munmap");
+        abort();
+    }
+
+    /* pdate the page table entry for the page to be “not resident” */
+    clear_page_entry(page);
 
     assert(!is_page_resident(page));
     num_resident--;
@@ -571,40 +590,57 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
      * this may result in some other page being unmapped.
      */
 
-    /* ==== TODO:  IMPLEMENT =================================================
-     *
-     * Examine the value of infop->si_code to determine if the corresponding
-     * page is simply unmapped (SEGV_MAPERR), or if the page is mapped but the
-     * access itself was not permitted (SEGV_ACCERR).
-     *
-     * If the address is unmapped (SEGV_MAPERR), you will need to map the
-     * corresponding page into memory.  Make sure to respect the physical
-     * memory constraints by evicting a page if there are already max_resident
-     * pages loaded.  You can do something like this to evict a page:
-     *
-     *     assert(num_resident <= max_resident);
-     *     if (num_resident == max_resident) {
-     *         page_t victim = choose_and_evict_victim_page();
-     *         assert(is_page_resident(victim));
-     *         unmap_page(victim);
-     *         assert(!is_page_resident(victim));
-     *     }
-     *
-     * Keep in mind that the new page will need its Page Table Entry (PTE)
-     * and permissions updated properly.
-     *
-     * If the address is mapped but an access violation occurred (SEGV_ACCERR),
-     * you can use the Page Table Entry helper functions to retrieve and update
-     * the page's PTE and permissions appropriately.  The set_page_permission()
-     * function is particularly useful; it will update the permission values in
-     * the page's PTE, as well as modifying the actual virtual-memory page
-     * permissions with a call to mprotect().
-     *
-     * As always, use assertions liberally!  If you have any errors, or you
-     * have points in the code that should never be reached, report an error
-     * and then call abort() so that your code will fail visibly.  This will
-     * greatly aid in debugging.
+    /* Begin by checking the si_code to see if the page is unmapped. If so, map
+     * the page into memory legally.
      */
+    if (infop->si_code == SEGV_MAPERR) {
+        assert(num_resident <= max_resident);
+
+        /* if we are at the max number of residents, evict a page, and check to
+         * ensure that the victim is evicted. */
+        if (num_resident == max_resident) {
+            page_t victim = choose_and_evict_victim_page();
+            assert(is_page_resident(victim));
+            unmap_page(victim);
+            assert(!is_page_resident(victim));
+        }
+
+        /* Now map and check for errors */
+        map_page(page, PAGEPERM_NONE);
+        assert(is_page_resident(page));
+    }
+    /* If the address is indeed mapped, but we encountered an access violation,
+     * then use the Page Table Entry helper functions toadjust permissions.
+     */
+    else if (infop->si_code == SEGV_ACCERR) {
+        assert(is_page_resident(page));
+        int permis = get_page_permission(page);
+
+        /* Assign permissions and handle errors */
+        if (permis == PAGEPERM_NONE) {
+            set_page_permission(page, PAGEPERM_READ);
+            set_page_accessed(page);
+
+            /* error check */
+            assert(get_page_permission(page) == PAGEPERM_READ);
+            assert(is_page_accessed(page));
+        }
+
+        /* Assign permissions */
+        if (permis == PAGEPERM_READ) {
+            set_page_permission(page, PAGEPERM_RDWR);
+            set_page_dirty(page);
+
+            /* error check */
+            assert(get_page_permission(page) == PAGEPERM_RDWR);
+            assert(is_page_dirty(page));
+        }
+    }
+    else {
+        fprintf(stderr, "%s\n", "Error: segfault unable to be handled");
+        abort();
+    }
+
 }
 
 

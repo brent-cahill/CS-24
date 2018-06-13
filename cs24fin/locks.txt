@@ -1,0 +1,57 @@
+Locking Primitives
+==================
+
+1a.  Benefit of spinlocks over normal locks
+
+Any situation in which locks have a very fast turnaround time would benefit
+from spinlocks. In this situation, we guarantee that we are going to access the
+lock faster than a normal lock. In addition, the time required for normal locks
+to passively wait (i.e., to trap into the kernal) could in some cases even
+exceed the duration that the lock is actually locked. This situation would
+greatly benefit from spinlocks.
+
+1b.  Spinlocks on 1-processor systems
+
+No, it will hurt the system, because the single process running (the spinlock)
+would continue trying to access the lock, therefore blocking any other process
+from occuring. Here, we enter a deadlock state, since the lock is waiting to
+be unlocked, but the unlocking process is waiting for the spinlock to finish.
+
+2a.  Read/write lock fairness issues
+
+This set of rules is inherently flawed, because in systems with an overwhelming
+majority of readers, the writers will never be able to access the lock.
+Readers would continually flood the lock, and writers would wait for a lock to
+become free that never would.
+
+2b.  Fair read/write lock design
+
+The design would be very similar, with one key difference being that if a
+blocked writer is waiting for a lock (is "queued"), then we would block the
+reader from accessing the lock.
+
+If a reader R1 attempts to acquire the read-write lock:
+	- If no one holds the lock, grant read access to R1 immediately.
+	- If another reader R2 already holds the lock, and no writer W is
+	waiting for the lock (enqueued), grant access to R1 immediately.
+	-If another reader R2 already holds the lock, and writers are enqueued,
+	block R1 until equeued writers have released the lock.
+	-If a writer W holds the lock, and no writers are enqueued, R1 is
+	blocked until all enqueued writers ahead of R1 release the lock.
+	-If a writer W holds the lock, and writers are enqueued, R1 is
+	blocked until W releases the lock.
+
+If a writer W1 attempts to acquire the read-write lock:
+	- If no one holds the lock, grant write access to W1 immediately.
+	- If the lock is currently held by some number of readers, block (enqueue)
+	W1 until no more readers hold the lock.
+	- If another writer W2 currently holds the lock, and no readers are
+	enqueued, W1 is blocked until W2 has released the lock.
+	- If another writer W2 currently holds the lock, and readers are enqueued,
+	W1 is blocked until W2 has released the lock, and readers ahead have all
+	released the lock.
+
+In this way, we essentially enqueue all read/write functions, with breaks being
+the writers. This ensures fairness for read/write.
+
+

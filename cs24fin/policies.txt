@@ -1,0 +1,69 @@
+Page Replacement Policies and Scan Resistance
+=============================================
+
+1a.  Characterization of FIFO policy
+
+FIFO certainly considers recency of access. The first page to be enqueued
+will be the first page to be evicted from the queue. I.e., the page at the
+front of the queue will be the "oldest" page, in terms of when it was enqueued.
+If the program doing the enqueuing is the same program that is accessing, then
+we certainly say that FIO considers recency of access.
+
+FIFO does not consider frequency of access at all.
+
+1b.  Characterization of Second Chance / Clock policy
+
+This is similar to FIFO, but considers an accessed bit that tells the program
+whether to evict the page or to put the page back in the queue. This certainly
+considers recency of access, since it builds on FIFO.
+
+This policy does not consider frequency of access.
+
+1c.  Characterization of Aging policy
+
+The Aging policy certainly considers recency of access as well as frequency of
+access, however it puts a higher priority of recency of access. It does this by
+looking at the most recently added bit after shifting.
+
+2.  Susceptibility of Aging policy to scans
+
+Yes, the Aging policy is definitely suceptible to scans. This is due to the
+high priority of recency over frequency of access. Theoretically two pages p1
+and p2 could be described as follows: p1 is accessed extrememely often, but not
+in the most recent time interval, we denote this as: 011111111. p2 is not
+accessed at all until the most recent time interval: 100000000. p2 would be
+evicted here, despite being accessed very frequently, and the fact that p1 is
+accessed as part of the scan.
+
+3a.  Comparison of 2Q to LRU-2
+
+The biggest difference here is the fact that pages that are accessed only once
+are ordered by least recently used. LRU-2 does not necessarily order like that.
+
+3b.  Design a version of 2Q that uses a timer interrupt and "accessed" bit
+
+Note: we will follow the regular 2Q eviction protocol unless otherwise stated.
+
+first page map:
+	- set accessed bit to false;
+	- set permissions to none; /* causes page fault */
+
+page fault:
+	- set accessed bit to true;
+	- set permissions to r/w
+
+timer interrupt:
+	- use regular 2Q update stretegy for A1/Am
+	- set accessed bit to false;
+	- set permissions to none;
+
+3c.  Comparison of your policy to 2Q
+
+This policy will get closer and closer to 2Q as the timer interrupts increase
+per step. If there is a timer interrupt at every step, then the policy is
+identical to 2Q. In addition, this policy can identify pages that are part of a
+scan, since A1 is populated by such pages. Finally, the policy cannot identify
+pages that are not part of a scan. This is due in full to the fact that the
+policy cannot tell if there have been multiple accesses to the page that occur
+during a single timer interrupt.
+
